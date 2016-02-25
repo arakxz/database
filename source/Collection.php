@@ -13,13 +13,13 @@ class Collection implements \Countable, \Iterator
     /**
      * Create a new collection.
      *
-     * @param  mixed  $items
+     * @param  array  $items
      *
      * @return void
      */
-    public function __construct($collection = array())
+    public function __construct(array $collection = array())
     {
-        $this->collection = (array)$collection;
+        $this->collection = $collection;
     }
 
     public function __destruct()
@@ -64,6 +64,18 @@ class Collection implements \Countable, \Iterator
     }
 
     /**
+     * Run a map over each of the items.
+     *
+     * @param  \Closure  $callback
+     *
+     * @return Collection
+     */
+    public function map(\Closure $callback)
+    {
+        return new static(array_map($callback, $this->collection));
+    }
+
+    /**
      * Run a filter over each of the items.
      *
      * @param  \Closure  $callback
@@ -82,9 +94,7 @@ class Collection implements \Countable, \Iterator
      */
     public function first()
     {
-        $collection = $this->collection;
-
-        return ($this->isEmpty()) ? null : (object)reset($collection);
+        return reset($collection);
     }
 
     /**
@@ -100,11 +110,15 @@ class Collection implements \Countable, \Iterator
     /**
      * Get a item from the collection.
      *
+     * @param  integer $index
+     *
+     * @throws \Exception
+     *
      * @return mixed
      */
     public function item($index)
     {
-        return (object)$this->collection[$index];
+        return $this->collection[$index];
     }
 
     /**
@@ -203,6 +217,20 @@ class Collection implements \Countable, \Iterator
     }
 
     /**
+     * Sort through each item with a callback.
+     *
+     * @param  \Closure  $callback
+     *
+     * @return $this
+     */
+    public function sort(\Closure $callback)
+    {
+        uasort($this->collection, $callback);
+
+        return $this;
+    }
+
+    /**
      * Chunk the underlying collection array.
      *
      * @param  int   $size
@@ -223,6 +251,20 @@ class Collection implements \Countable, \Iterator
     }
 
     /**
+     * Transform each item in the collection using a callback.
+     *
+     * @param  \Closure  $callback
+     *
+     * @return $this
+     */
+    public function transform(\Closure $callback)
+    {
+        $this->collection = array_map($callback, $this->collection);
+
+        return $this;
+    }
+
+    /**
      * Splice portion of the underlying collection array.
      *
      * @param  int    $offset
@@ -236,9 +278,14 @@ class Collection implements \Countable, \Iterator
         return new static(array_splice($this->collection, $offset, $length, $replacement));
     }
 
+    /**
+     * Get the collection of items as a plain array.
+     *
+     * @return array
+     */
     public function toArray()
     {
-        return (array)$this->collection;
+        return (array) $this->collection;
     }
 
     /**
@@ -248,9 +295,9 @@ class Collection implements \Countable, \Iterator
      *
      * @return string
      */
-    public function toJson()
+    public function toJson($options = 0)
     {
-        return json_encode($this->collection);
+        return json_encode($this->collection, $options);
     }
 
     /**
