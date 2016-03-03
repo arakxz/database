@@ -68,7 +68,7 @@ class Collection implements \Countable, \Iterator
      *
      * @param  \Closure  $callback
      *
-     * @return Collection
+     * @return static
      */
     public function map(\Closure $callback)
     {
@@ -94,7 +94,7 @@ class Collection implements \Countable, \Iterator
      */
     public function first()
     {
-        return reset($collection);
+        return reset($this->collection);
     }
 
     /**
@@ -111,8 +111,6 @@ class Collection implements \Countable, \Iterator
      * Get a item from the collection.
      *
      * @param  integer $index
-     *
-     * @throws \Exception
      *
      * @return mixed
      */
@@ -134,7 +132,7 @@ class Collection implements \Countable, \Iterator
     /**
      * Count the number of items in the collection.
      *
-     * @return int
+     * @return integer
      */
     public function length()
     {
@@ -166,9 +164,9 @@ class Collection implements \Countable, \Iterator
     /**
      * Push an item onto the end of the collection.
      *
-     * @param  mixed  $value
+     * @param  mixed  $item
      *
-     * @return void
+     * @return $this
      */
     public function push($item)
     {
@@ -180,6 +178,8 @@ class Collection implements \Countable, \Iterator
     /**
      * Reverse items order.
      *
+     * @param  boolean $preserve
+     *
      * @return static
      */
     public function reverse($preserve = false)
@@ -187,9 +187,16 @@ class Collection implements \Countable, \Iterator
         return new static(array_reverse($this->collection, $preserve));
     }
 
-    public function replace($collection)
+    /**
+     * @param  array  $collection
+     *
+     * @return $this
+     */
+    public function replace(array $collection)
     {
         $this->collection = $collection;
+
+        return $this;
     }
 
     /**
@@ -267,9 +274,9 @@ class Collection implements \Countable, \Iterator
     /**
      * Splice portion of the underlying collection array.
      *
-     * @param  int    $offset
-     * @param  int    $length
-     * @param  mixed  $replacement
+     * @param  integer $offset
+     * @param  integer $length
+     * @param  mixed   $replacement
      *
      * @return static
      */
@@ -303,7 +310,7 @@ class Collection implements \Countable, \Iterator
     /**
      * Count the number of items in the collection.
      *
-     * @return int
+     * @return integer
      */
     public function count()
     {
