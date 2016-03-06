@@ -2,14 +2,62 @@
 
 include 'connection.php';
 
-try {
+# $mysql->table('table');
+# $r = $mysql->column('column1', 'value1')->where('column1', 'between', [value1, value2])->update();
+# $mysql->table('table');
+# $r = $mysql->columns(['column1' => 'value1', 'column2' => 'value2', 'column3' => 'value3',])->where('column1', '=', value1)->update();
 
-    $mysql->table('empresas');
+class InsertCase extends PHPUnit_Framework_TestCase
+{
 
-    $r = $mysql->column('name', 'auxiliar')->where('ncd', 'between', [5, 6])->update();
+    private $connection;
 
-    $mysql->table('empresas');
+    public function setUp()
+    {
+        $connection = new Connection();
 
-    $r = $mysql->columns(['nid' => '1', 'ncd' => '1', 'name' => 'uno',])->where('id', '=', 1)->update();
+        $this->connection = $connection->getConnection();
+    }
 
-} catch (Exception $error) { die($error->getMessage()); }
+    /**
+     * @after
+     */
+    public function testConnection()
+    {
+        $this->assertInstanceOf('Arakxz\Database\Connectors\MySQLConnector', $this->connection);
+    }
+
+    public function testUpdate()
+    {
+
+        $r = (bool) $this->connection
+                         ->table('referencia_empresa')
+                         ->columns([
+                             'hrut' => '99887766',
+                             'updated_at' => date('Y-m-d H:i:s'),
+                         ])
+                         ->where('id', '=', 1)->update();
+
+        $this->assertTrue($r);
+
+        $r = (bool) $this->connection
+                         ->table('referencia_empresa')
+                         ->column('hrut', '9988776655')
+                         ->where('id', '=', 2)->update();
+
+        $this->assertTrue($r);
+
+    }
+
+    public function testExecute()
+    {
+        $r = (bool) $this->connection->execute(
+            'update referencia_empresa set hrut=? where `id`=?', [
+                '556677889900', 3
+            ]
+        );
+
+        $this->assertTrue($r);
+    }
+
+}
