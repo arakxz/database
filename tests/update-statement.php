@@ -1,13 +1,13 @@
 <?php
 
-include 'connection.php';
+include_once __DIR__ . '/connection.php';
 
 # $mysql->table('table');
 # $r = $mysql->column('column1', 'value1')->where('column1', 'between', [value1, value2])->update();
 # $mysql->table('table');
 # $r = $mysql->columns(['column1' => 'value1', 'column2' => 'value2', 'column3' => 'value3',])->where('column1', '=', value1)->update();
 
-class InsertCase extends PHPUnit_Framework_TestCase
+class UpdateCase extends PHPUnit_Framework_TestCase
 {
 
     private $connection;
@@ -33,7 +33,7 @@ class InsertCase extends PHPUnit_Framework_TestCase
         $r = (bool) $this->connection
                          ->table('referencia_empresa')
                          ->columns([
-                             'hrut' => '99887766',
+                             'hrut' => uniqid('test-'),
                              'updated_at' => date('Y-m-d H:i:s'),
                          ])
                          ->where('id', '=', 1)->update();
@@ -42,7 +42,7 @@ class InsertCase extends PHPUnit_Framework_TestCase
 
         $r = (bool) $this->connection
                          ->table('referencia_empresa')
-                         ->column('hrut', '9988776655')
+                         ->column('hrut', uniqid('test-'))
                          ->where('id', '=', 2)->update();
 
         $this->assertTrue($r);

@@ -1,0 +1,10 @@
+<phpunit>
+    <testsuites>
+        <testsuite name="database">
+            <file>tests/select-statement.php</file>
+            <file>tests/insert-statement.php</file>
+            <file>tests/update-statement.php</file>
+            <file>tests/delete-statement.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>

@@ -1,6 +1,6 @@
 <?php
 
-include 'connection.php';
+include_once __DIR__ . '/connection.php';
 
 # $mysql->table('table');
 # $r = $mysql->columns(['column1' => 'value1', 'column2' => 'value2', 'column3' => 'value3',])->insert();
@@ -32,7 +32,7 @@ class InsertCase extends PHPUnit_Framework_TestCase
         $this->connection->table('referencia_empresa');
         $r = (bool) $this->connection
                          ->columns([
-                             'hrut' => '1122334455',
+                             'hrut' => uniqid('test-'),
                              'id_empresa' => '1',
                              'created_at' => date('Y-m-d H:i:s'),
                              'updated_at' => date('Y-m-d H:i:s'),
@@ -42,7 +42,7 @@ class InsertCase extends PHPUnit_Framework_TestCase
         $this->assertTrue($r);
 
         $r = (bool) $this->connection->table('referencia_empresa')
-                                     ->column('hrut', '112233445566')
+                                     ->column('hrut', uniqid('test-'))
                                      ->column('id_empresa', '2')
                                      ->column('created_at', date('Y-m-d H:i:s'))
                                      ->column('updated_at', date('Y-m-d H:i:s'))->insert();
@@ -55,7 +55,7 @@ class InsertCase extends PHPUnit_Framework_TestCase
     {
         $r = (bool) $this->connection->execute(
             'insert into ? (hrut, id_empresa, created_at, updated_at) values (?, ?, ?, ?)', [
-                'referencia_empresa', '11223344556677', '3', date('Y-m-d H:i:s'), date('Y-m-d H:i:s')
+                'referencia_empresa', uniqid('test-'), '3', date('Y-m-d H:i:s'), date('Y-m-d H:i:s')
             ]
         );
 

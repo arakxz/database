@@ -1,11 +1,11 @@
 <?php
 
-include '../source/Collection.php';
-include '../source/Query/Builder.php';
-include '../source/Query/Grammars/Grammar.php';
-include '../source/Connectors/MySQLConnector.php';
-include '../source/Exception/BuilderException.php';
-include '../source/Query/Grammars/MySQLGrammar.php';
+include_once dirname(__DIR__) . '/source/Collection.php';
+include_once dirname(__DIR__) . '/source/Query/Builder.php';
+include_once dirname(__DIR__) . '/source/Query/Grammars/Grammar.php';
+include_once dirname(__DIR__) . '/source/Connectors/MySQLConnector.php';
+include_once dirname(__DIR__) . '/source/Exception/BuilderException.php';
+include_once dirname(__DIR__) . '/source/Query/Grammars/MySQLGrammar.php';
 
 use \Arakxz\Database\Connectors\MySQLConnector as MySQL;
 
@@ -18,7 +18,7 @@ class Connection
     {
         try {
 
-            $this->connection = new MySQL('blinking', 'root', 'ddossow123');
+            $this->connection = new MySQL('database', 'username', 'password');
 
         } catch (Exception $error) { die($error->getMessage()); }
     }

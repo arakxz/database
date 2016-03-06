@@ -1,11 +1,11 @@
 <?php
 
-include 'connection.php';
+include_once __DIR__ . '/connection.php';
 
 # $r = $mysql->table('table')->where('column1', 'between', [value1, value2])->delete();
 # $r = $mysql->table('table')->where('column1', '=', value1)->delete();
 
-class InsertCase extends PHPUnit_Framework_TestCase
+class DeleteCase extends PHPUnit_Framework_TestCase
 {
 
     private $connection;

@@ -1,6 +1,6 @@
 <?php
 
-include 'connection.php';
+include_once __DIR__ . '/connection.php';
 
 # $r = $mysql->table('table')->where('column1', '=', value1)->select();
 # $r = $mysql->table('table')->where('column1', '=', value1)->select(['column1']);
