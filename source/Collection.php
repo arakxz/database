@@ -8,7 +8,7 @@ class Collection implements \Countable, \Iterator
      *
      * @var array
      */
-    private $collection = array();
+    protected $collection = array();
 
     /**
      * Create a new collection.
