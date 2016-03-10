@@ -292,7 +292,7 @@ class Collection implements \Countable, \Iterator
      */
     public function toArray()
     {
-        return (array) $this->collection;
+        return $this->collection;
     }
 
     /**
