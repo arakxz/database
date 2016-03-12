@@ -53,6 +53,10 @@ class SelectCase extends PHPUnit_Framework_TestCase
         # $this->connection->table('empresa')->where('id', '=', 1)->select()->first();
 
         $this->assertTrue($first['id'] == 1);
+
+        $r = $this->connection->table('empresa')->where('id', 'in', [1, 2, 3])->select();
+
+        $this->assertFalse($r->isEmpty());
     }
 
     public function testAlias()

@@ -20,7 +20,7 @@ class MySQLGrammar implements Grammar
      */
     private $operators = array(
         '=', '<', '<>', '>', '>=', '<=',
-        'LIKE', 'NOT LIKE', 'BETWEEN',
+        'LIKE', 'NOT LIKE', 'BETWEEN', 'IN',
     );
 
     private $placeholder = '?';
@@ -72,6 +72,9 @@ class MySQLGrammar implements Grammar
     public function select($limit, $table, array $orders, array $wheres, array $columns)
     {
 
+        # alias pattern
+        $pattern = '/(?P<l>\w+)\s+as\s+(?P<r>\w+)/i';
+
         $statement[] = 'SELECT';
         $statement[] = $this->placeholder;
         $statement[] = 'FROM';
@@ -79,12 +82,15 @@ class MySQLGrammar implements Grammar
 
         $replace[] = empty($columns)
             ? '*'
-            : '`' . implode('`, `', array_map(function ($column) {
+            : '`' . implode('`, `', array_map(
 
-                return ((bool)preg_match('/(?P<l>\w+)\s+as\s+(?P<r>\w+)/i', $column, $aux))
-                    ? $aux['l'] . '` AS `' . $aux['r'] : $column;
+                function ($column) use ($pattern)
+                {
+                    return ((bool) preg_match($pattern, $column, $aux)) ? $aux['l'] . '` AS `' . $aux['r'] : $column;
+                }
+                , $columns
 
-            }, $columns)) . '`';
+            )) . '`';
 
         $replace[] = '`' . $table . '`';
 
@@ -141,14 +147,16 @@ class MySQLGrammar implements Grammar
         $v = [];
 
         foreach ($columns as $column => $value) {
+
             $c[] = $column;
             $v[] = ':c' . $column;
 
             $this->bindings['c' . $column] = $value;
+
         }
 
         $replace[] = '(`' . implode('`, `', $c) . '`)';
-        $replace[] = '(' . implode(', ', $v) . ')';
+        $replace[] = '('  . implode(', '  , $v) .  ')';
 
         return $this->prepare(implode("\x20", $statement), $replace);
 
@@ -172,10 +180,9 @@ class MySQLGrammar implements Grammar
 
         $c = [];
 
-        foreach ($columns as $column => $value) {
-            $c[] = "`$column`=:v$column";
-
-            $this->bindings['v' . $column] = $value;
+        foreach ($columns as $column => $value)
+        {
+            $c[] = "`$column`=:v$column"; $this->bindings['v' . $column] = $value;
         }
 
         $replace[] = '`' . $table . '`';
@@ -197,6 +204,7 @@ class MySQLGrammar implements Grammar
             $statement[] = $this->placeholder;
 
             $replace[] = $limit;
+
         }
 
         return $this->prepare(implode("\x20", $statement), $replace);
@@ -234,6 +242,7 @@ class MySQLGrammar implements Grammar
             $statement[] = $this->placeholder;
 
             $replace[] = $limit;
+
         }
 
         return $this->prepare(implode("\x20", $statement), $replace);
@@ -251,10 +260,9 @@ class MySQLGrammar implements Grammar
     {
         $o = [];
 
-        foreach ($orders as $p) {
-            list($column, $sorted) = $p;
-
-            $o[] = "`$column` $sorted";
+        foreach ($orders as $p)
+        {
+            list($column, $sorted) = $p; $o[] = "`$column` $sorted";
         }
 
         return implode(', ', $o);
@@ -277,6 +285,26 @@ class MySQLGrammar implements Grammar
 
             switch ($operator) {
 
+                # The IN operator allows you to specify multiple values in a
+                # WHERE clause.
+                #
+                # http://www.w3schools.com/sql/sql_in.asp
+                case 'IN':
+
+                    $c = [];
+                    foreach ($value as $k => $v)
+                    {
+                        $c[] = ':win' . $k;
+
+                        $this->bindings['win' . $k] = $v;
+                    }
+
+                    $w[] = "`$column` $operator (" . implode(', ', $c) . ")";
+                    break;
+
+                # The BETWEEN operator is used to select values within a range.
+                #
+                # http://www.w3schools.com/sql/sql_between.asp
                 case 'BETWEEN':
 
                     $w[] = "`$column` $operator :wl$column AND :wr$column";
@@ -285,6 +313,10 @@ class MySQLGrammar implements Grammar
                     $this->bindings['wr' . $column] = $value[1];
                     break;
 
+                # The WHERE clause is used to extract only those records that fulfill
+                # a specified criterion.
+                #
+                # http://www.w3schools.com/sql/sql_where.asp
                 default:
 
                     $w[] = "`$column` $operator :w$column";
@@ -302,7 +334,7 @@ class MySQLGrammar implements Grammar
     /**
      * @param  string $query
      * @param  array  $params
-     * 
+     *
      * @return string
      */
     private function prepare($query, $params)
