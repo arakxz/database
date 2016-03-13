@@ -36,6 +36,8 @@ final class MySQLConnector extends PDO
     }
 
     /**
+	 * Set the table which the query is targeting.
+	 *
      * @param  string $table
      *
      * @return $this
@@ -48,6 +50,8 @@ final class MySQLConnector extends PDO
     }
 
     /**
+	 * Set the "limit" value of the query.
+	 *
      * @param  integer $limit
      *
      * @return $this
@@ -60,6 +64,8 @@ final class MySQLConnector extends PDO
     }
 
     /**
+	 * Add a basic where clause to the query.
+	 *
      * @param  string $column
      * @param  string $operator
      * @param  mixed  $value
@@ -74,6 +80,8 @@ final class MySQLConnector extends PDO
     }
 
     /**
+	 * Add an "order by" clause to the query.
+	 *
      * @param  string $column
      * @param  string $sorted
      *
@@ -111,6 +119,11 @@ final class MySQLConnector extends PDO
         return $this;
     }
 
+    /**
+	 * Force the query to only return distinct results.
+	 *
+	 * @return $this
+	 */
     public function distinct()
     {
         $this->builder->distinct();
@@ -119,6 +132,10 @@ final class MySQLConnector extends PDO
     }
 
     /**
+	 * Select a record in the database.
+	 *
+	 * @throws \Exception
+	 *
      * @param  array $columns
      *
      * @return \Arakxz\Database\Collection
@@ -126,10 +143,11 @@ final class MySQLConnector extends PDO
     public function select(array $columns = array())
     {
 
-        if (!empty($columns)) { $this->columns($columns); }
-
-        $select = $this->prepare($this->builder->select());
-        $collection = new Collection();
+        $select = $this->prepare(
+            empty($columns)
+                ? $this->builder->select()
+                : $this->columns($columns)->builder->select()
+        );
 
         foreach ($this->builder->bindings() as $key => $value) {
             $select->bindValue(':' . $key, $value, $this->bindValue($value));
@@ -138,11 +156,10 @@ final class MySQLConnector extends PDO
         $this->builder->builderFlush();
 
         if (!$select->execute()) {
-
-            $e = $select->errorInfo();
-            throw new \Exception($e[2], $e[1]);
-
+            $ei = $select->errorInfo(); throw new \Exception($ei[2], $ei[1]);
         }
+
+        $collection = new Collection();
 
         while ($row = $select->fetch(\PDO::FETCH_ASSOC)) {
             $collection->push($row);
@@ -153,6 +170,8 @@ final class MySQLConnector extends PDO
     }
 
     /**
+	 * Insert a record in the database.
+	 *
      * @return integer
      */
     public function insert()
@@ -169,6 +188,8 @@ final class MySQLConnector extends PDO
     }
 
     /**
+	 * Update a record in the database.
+	 *
      * @return integer
      */
     public function update()
@@ -185,6 +206,8 @@ final class MySQLConnector extends PDO
     }
 
     /**
+     * Delete a record from the database.
+     *
      * @return integer
      */
     public function delete()
@@ -240,7 +263,7 @@ final class MySQLConnector extends PDO
                 return $collection;
 
             default:
-                throw new \Exception('command not available.');
+                throw new \Exception("Command \"$command\" not available.");
 
         }
 

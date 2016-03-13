@@ -73,18 +73,34 @@ class Builder
         #destruct
     }
 
+    /**
+	 * Set the table which the query is targeting.
+	 *
+     * @param  string $table
+     *
+     * @return void
+     */
     public function table($table)
     {
         $this->table = $table;
     }
 
+    /**
+	 * Set the "limit" value of the query.
+	 *
+     * @param  integer $limit
+     *
+     * @return void
+     */
     public function limit($limit)
     {
         $this->limit = $limit;
     }
 
     /**
-     * @throws BuilderException
+	 * Add a basic where clause to the query.
+	 *
+     * @throws \Arakxz\Database\Exception\BuilderException
      *
      * @param  string $column
      * @param  string $operator
@@ -104,6 +120,8 @@ class Builder
     }
 
     /**
+	 * Add an "order by" clause to the query.
+	 *
      * @param  string $column
      * @param  string $sorted
      *
@@ -114,30 +132,49 @@ class Builder
         $this->orders[] = array($column, strtoupper($sorted));
     }
 
+    /**
+     * @param  string $name  [description]
+     * @param  mixed  $value [description]
+     *
+     * @return void
+     */
     public function column($name, $value)
     {
         $this->columns[$name] = $value;
     }
 
-    public function columns($columns)
+    /**
+     * @param  array $columns
+     *
+     * @return void
+     */
+    public function columns(array $columns)
     {
         $this->columns = $columns;
     }
 
-    public function distinct()
-    {
-        $this->distinct = true;
-    }
-
+    /**
+     * @return array
+     */
     public function bindings()
     {
         return $this->grammar->bindings();
     }
 
     /**
-	 * Select a record in the database.
+	 * Force the query to only return distinct results.
 	 *
-	 * @throws BuilderException
+     * @return void
+     */
+    public function distinct()
+    {
+        $this->distinct = true;
+    }
+
+    /**
+	 * Select statement.
+	 *
+	 * @throws \Arakxz\Database\Exception\BuilderException
 	 *
 	 * @return string
 	 */
@@ -153,9 +190,9 @@ class Builder
     }
 
     /**
-	 * Insert a record in the database.
+	 * Insert statement.
 	 *
-	 * @throws BuilderException
+	 * @throws \Arakxz\Database\Exception\BuilderException
 	 *
 	 * @return string
 	 */
@@ -169,9 +206,9 @@ class Builder
     }
 
     /**
-	 * Update a record in the database.
+	 * Update statement.
 	 *
-	 * @throws BuilderException
+	 * @throws \Arakxz\Database\Exception\BuilderException
 	 *
 	 * @return string
 	 */
@@ -187,9 +224,9 @@ class Builder
     }
 
     /**
-     * Delete a record from the database.
+     * Delete statement.
      *
-     * @return mixed
+     * @return string
      */
     public function delete()
     {
@@ -202,6 +239,7 @@ class Builder
     {
         $this->table = null;
         $this->limit = null;
+        $this->distinct = false;
 
         $this->columns = array();
         $this->wheres = array();
