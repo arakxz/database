@@ -45,6 +45,7 @@ class MySQLGrammar implements Grammar
 
     /**
      * @param  string $operator
+     *
      * @return boolean
      */
     public function hasOperator($operator)
@@ -66,16 +67,17 @@ class MySQLGrammar implements Grammar
      * @param  array   $orders
      * @param  array   $wheres
      * @param  array   $columns
+     * @param  boolean $distinct
      *
      * @return string
      */
-    public function select($limit, $table, array $orders, array $wheres, array $columns)
+    public function select($limit, $table, array $orders, array $wheres, array $columns, $distinct)
     {
 
         # alias pattern
         $pattern = '/(?P<l>\w+)\s+as\s+(?P<r>\w+)/i';
 
-        $statement[] = 'SELECT';
+        $statement[] = $distinct ? 'SELECT DISTINCT' : 'SELECT';
         $statement[] = $this->placeholder;
         $statement[] = 'FROM';
         $statement[] = $this->placeholder;

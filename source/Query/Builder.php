@@ -43,6 +43,13 @@ class Builder
     private $columns = array();
 
     /**
+     * Indicates if the query returns distinct results.
+     *
+     * @var bool
+     */
+    public $distinct = false;
+
+    /**
      * The database query grammar instance.
      *
      * @var \Arakxz\Database\Query\Grammars\Grammar
@@ -117,6 +124,11 @@ class Builder
         $this->columns = $columns;
     }
 
+    public function distinct()
+    {
+        $this->distinct = true;
+    }
+
     public function bindings()
     {
         return $this->grammar->bindings();
@@ -136,7 +148,7 @@ class Builder
         }
 
         return $this->grammar->select(
-            $this->limit, $this->table, $this->orders, $this->wheres, $this->columns
+            $this->limit, $this->table, $this->orders, $this->wheres, $this->columns, $this->distinct
         );
     }
 

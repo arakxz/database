@@ -111,6 +111,13 @@ final class MySQLConnector extends PDO
         return $this;
     }
 
+    public function distinct()
+    {
+        $this->builder->distinct();
+
+        return $this;
+    }
+
     /**
      * @param  array $columns
      *
