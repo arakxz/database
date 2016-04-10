@@ -94,7 +94,7 @@ class Collection implements \Countable, \Iterator
      */
     public function first()
     {
-        return reset($this->collection);
+        return $this->isEmpty() ? null : reset($this->collection);
     }
 
     /**
@@ -126,7 +126,7 @@ class Collection implements \Countable, \Iterator
      */
     public function last()
     {
-        return end($this->collection);
+        return $this->isEmpty() ? null : end($this->collection);
     }
 
     /**
