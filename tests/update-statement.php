@@ -10,51 +10,89 @@ include_once __DIR__ . '/connection.php';
 class UpdateCase extends PHPUnit_Framework_TestCase
 {
 
-    private $connection;
-
-    public function setUp()
-    {
-        $connection = new Connection();
-
-        $this->connection = $connection->getConnection();
-    }
-
     /**
-     * @after
+     * @before
      */
     public function testConnection()
     {
-        $this->assertInstanceOf('Arakxz\Database\Connectors\MySQLConnector', $this->connection);
+        switch (DATABASE_CONNECTION) {
+
+            case Connection::DATABASE_MYSQL:
+                $this->assertInstanceOf(
+                    'Arakxz\Database\Connectors\MySQLConnector', Connection::Instance()
+                );
+                break;
+
+            case Connection::DATABASE_POSTGRESQL:
+                $this->assertInstanceOf(
+                    'Arakxz\Database\Connectors\PostgreSQLConnector', Connection::Instance()
+                );
+                break;
+
+        }
     }
 
     public function testUpdate()
     {
 
-        $r = (bool) $this->connection
-                         ->table('referencia_empresa')
-                         ->columns([
-                             'hrut' => uniqid('test-'),
-                             'updated_at' => date('Y-m-d H:i:s'),
-                         ])
-                         ->where('id', '=', 1)->update();
+        $first = Connection::Instance()
+                        ->table('usuario')
+                        ->limit(1)
+                        ->select()
+                        ->first();
+
+        $n = uniqid('test-');
+
+        $r = Connection::Instance()
+                        ->table('usuario')
+                        ->columns([
+                            'edad' => rand(1, 90),
+                            'nombre' => $n,
+                        ])
+                        ->where('id', '=', $first['id'])
+                        ->update();
 
         $this->assertTrue($r);
 
-        $r = (bool) $this->connection
-                         ->table('referencia_empresa')
-                         ->column('hrut', uniqid('test-'))
-                         ->where('id', '=', 2)->update();
+        $first = Connection::Instance()
+                        ->table('usuario')
+                        ->where('id', '=', $first['id'])
+                        ->select()
+                        ->first();
+
+        $this->assertTrue($first['nombre'] == $n);
+
+        $a = uniqid('test-');
+
+        $r = Connection::Instance()
+                        ->table('usuario')
+                        ->column('apellido', $a)
+                        ->where('id', '=', $first['id'])
+                        ->update();
 
         $this->assertTrue($r);
+
+        $first = Connection::Instance()
+                        ->table('usuario')
+                        ->where('id', '=', $first['id'])
+                        ->select()
+                        ->first();
+
+        $this->assertTrue($first['apellido'] == $a);
 
     }
 
     public function testExecute()
     {
-        $r = (bool) $this->connection->execute(
-            'update referencia_empresa set hrut=? where `id`=?', [
-                '556677889900', 3
-            ]
+        $first = Connection::Instance()
+                        ->table('usuario')
+                        ->limit(1)
+                        ->select()
+                        ->first();
+
+        $r = Connection::Instance()->execute(
+            'update usuario set nombre=? where id=?',
+            [uniqid('test-'), $first['id']]
         );
 
         $this->assertTrue($r);

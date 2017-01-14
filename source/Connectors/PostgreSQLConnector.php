@@ -6,13 +6,13 @@ use \PDOException;
 use \Arakxz\Database\Query;
 use \Arakxz\Database\Collection;
 
-final class MySQLConnector extends PDO
+final class PostgreSQLConnector extends PDO
 {
 
-    private $dsn = 'mysql:host=%s;port=%s;dbname=%s';
+    private $dsn = 'pgsql:host=%s;port=%s;dbname=%s';
     private $builder;
 
-    public function __construct($database, $user, $password, $host = 'localhost', $port = 3306)
+    public function __construct($database, $user, $password, $host = 'localhost', $port = 5432)
     {
         try {
 
@@ -22,7 +22,7 @@ final class MySQLConnector extends PDO
 
             parent::__construct($dsn, $user, $password);
 
-            $this->builder = new Query\Builder(new Query\Grammars\MySQLGrammar());
+            $this->builder = new Query\Builder(new Query\Grammars\PostgreSQLGrammar());
 
         } catch (PDOException $exception) {
             # error code...

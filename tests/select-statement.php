@@ -6,62 +6,87 @@ include_once __DIR__ . '/connection.php';
 # $r = $mysql->table('table')->where('column1', '=', value1)->select(['column1']);
 # $r = $mysql->table('table')->order('column1', 'desc')->limit(2)->select(['column1 as column1-alias']);
 # $r = $mysql->execute('select * from table');
-# $r = $mysql->execute('select ? from table', ['column1']);
-# $r = $mysql->execute('select ? as column1-alias from table', ['column1']);
 
 class SelectCase extends PHPUnit_Framework_TestCase
 {
 
-    private $connection;
-
-    public function setUp()
-    {
-        $connection = new Connection();
-
-        $this->connection = $connection->getConnection();
-    }
-
     /**
-     * @after
+     * @before
      */
     public function testConnection()
     {
-        $this->assertInstanceOf('Arakxz\Database\Connectors\MySQLConnector', $this->connection);
+        switch (DATABASE_CONNECTION) {
+
+            case Connection::DATABASE_MYSQL:
+                $this->assertInstanceOf(
+                    'Arakxz\Database\Connectors\MySQLConnector', Connection::Instance()
+                );
+                break;
+
+            case Connection::DATABASE_POSTGRESQL:
+                $this->assertInstanceOf(
+                    'Arakxz\Database\Connectors\PostgreSQLConnector', Connection::Instance()
+                );
+                break;
+
+        }
     }
 
     public function testCollection()
     {
-        $r = $this->connection->table('empresa')->select();
+        $r = Connection::Instance()
+                    ->table('usuario')
+                    ->select();
 
         $this->assertTrue($r instanceof \Arakxz\Database\Collection);
     }
 
     public function testLimit()
     {
-        $r = $this->connection->table('empresa')->limit(2)->select();
+        $r = Connection::Instance()
+                    ->table('usuario')
+                    ->limit(2)
+                    ->select();
 
         $this->assertTrue($r->length() === 2);
     }
 
     public function testWhere()
     {
-        $r = $this->connection->table('empresa')->where('id', '=', 1)->select();
+        $all = Connection::Instance()
+                    ->table('usuario')
+                    ->select();
+
+        $f = $all->first();
+
+        $r = Connection::Instance()
+                    ->table('usuario')
+                    ->where('id', '=', $f['id'])->select();
 
         $first = $r->first();
 
-        # or
-        # $this->connection->table('empresa')->where('id', '=', 1)->select()->first();
+        $this->assertTrue($first['id'] == $f['id']);
 
-        $this->assertTrue($first['id'] == 1);
+        $in = [];
+        for ($i = 0; $i < $all->length(); $i++) {
+            if ($i < 2) {
+                $in[] = $all->item($i)['id'];
+            } else { break; }
+        }
 
-        $r = $this->connection->table('empresa')->where('id', 'in', [1, 2, 3])->select();
+        $r = Connection::Instance()
+                    ->table('usuario')
+                    ->where('id', 'in', $in)->select();
 
         $this->assertFalse($r->isEmpty());
     }
 
     public function testAlias()
     {
-        $r = $this->connection->table('empresa')->limit(1)->select(['id as identificador']);
+        $r = Connection::Instance()
+                    ->table('usuario')
+                    ->limit(1)
+                    ->select(['id as identificador']);
 
         $first = $r->first();
 
@@ -70,7 +95,8 @@ class SelectCase extends PHPUnit_Framework_TestCase
 
     public function testExecute()
     {
-        $r = $this->connection->execute('select ? as identificador from empresa', ['id']);
+        $r = Connection::Instance()
+                    ->execute('select id as identificador from usuario');
 
         $this->assertFalse($r->isEmpty());
     }
@@ -81,7 +107,7 @@ class SelectCase extends PHPUnit_Framework_TestCase
      */
     public function testExceptionHasErrorCode0()
     {
-        $this->connection->select();
+        Connection::Instance()->select();
     }
 
 }

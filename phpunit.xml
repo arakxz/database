@@ -1,8 +1,15 @@
 <phpunit>
+    <php>
+        <const name="DATABASE_CONNECTION" value="POSTGRESQL" />
+        <!-- environment -->
+        <env name="DATABASE_NAME" value="postgres" />
+        <env name="DATABASE_USERNAME" value="postgres" />
+        <env name="DATABASE_PASSWORD" value="postgres" />
+    </php>
     <testsuites>
         <testsuite name="database">
-            <file>tests/select-statement.php</file>
             <file>tests/insert-statement.php</file>
+            <file>tests/select-statement.php</file>
             <file>tests/update-statement.php</file>
             <file>tests/delete-statement.php</file>
         </testsuite>

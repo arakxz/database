@@ -8,34 +8,54 @@ include_once __DIR__ . '/connection.php';
 class DeleteCase extends PHPUnit_Framework_TestCase
 {
 
-    private $connection;
-
-    public function setUp()
-    {
-        $connection = new Connection();
-
-        $this->connection = $connection->getConnection();
-    }
-
     /**
-     * @after
+     * @before
      */
     public function testConnection()
     {
-        $this->assertInstanceOf('Arakxz\Database\Connectors\MySQLConnector', $this->connection);
+        switch (DATABASE_CONNECTION) {
+
+            case Connection::DATABASE_MYSQL:
+                $this->assertInstanceOf(
+                    'Arakxz\Database\Connectors\MySQLConnector', Connection::Instance()
+                );
+                break;
+
+            case Connection::DATABASE_POSTGRESQL:
+                $this->assertInstanceOf(
+                    'Arakxz\Database\Connectors\PostgreSQLConnector', Connection::Instance()
+                );
+                break;
+
+        }
     }
 
     public function testDelete()
     {
-        $r = $this->connection->table('referencia_empresa')->where('id', '=', 2)->delete();
+        $first = Connection::Instance()
+                        ->table('usuario')
+                        ->limit(2)
+                        ->select()
+                        ->first();
+
+        $r = Connection::Instance()
+                        ->table('usuario')
+                        ->where('id', '=', $first['id'])
+                        ->delete();
 
         $this->assertTrue($r);
     }
 
     public function testExecute()
     {
-        $r = (bool) $this->connection->execute(
-            'delete from referencia_empresa where `id`=?', [3]
+        $first = Connection::Instance()
+                        ->table('usuario')
+                        ->limit(2)
+                        ->select()
+                        ->first();
+
+        $r = (bool) Connection::Instance()->execute(
+            'delete from usuario where id=?', [$first['id']]
         );
 
         $this->assertTrue($r);
